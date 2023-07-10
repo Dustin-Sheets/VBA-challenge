@@ -1,0 +1,110 @@
+Sub stock():
+Dim ws As Worksheet
+For Each ws In Worksheets
+'titles
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Yearly change"
+    ws.Range("K1").Value = "Percent change"
+    ws.Range("L1").Value = "Total stock volume"
+    ws.Range("N2").Value = "Greatest % increase"
+    ws.Range("N3").Value = "Greatest % decrease"
+    ws.Range("N4").Value = "Greatest total volume"
+    ws.Range("O1").Value = "Ticker"
+    ws.Range("P1").Value = "value"
+    
+'definitions
+    Dim ticker As String
+    Dim volume As Double
+    volume = 0
+    Dim row As Integer
+    newrow = 2
+    Dim lastrow As Long
+    lastrow = ws.Cells(Rows.Count, 1).End(xlUp).row
+    Dim change As Double
+    change = 0
+    Dim changerow1 As Long
+    Dim changerow2 As Long
+    changerow1 = 2
+    changerow2 = 2
+    Dim perchange As Double
+    perchange = 0
+
+    For i = 2 To lastrow
+        If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+        
+        'ticker and volume
+            ticker = ws.Cells(i, 1).Value
+            volume = volume + ws.Cells(i, 7).Value
+            ws.Range("I" & newrow).Value = ticker
+            ws.Range("L" & newrow).Value = volume
+            
+        'yearly change
+            changerow2 = ws.Cells(i, 1).row
+            change = ws.Cells(changerow2, 6).Value - ws.Cells(changerow1, 3)
+            ws.Range("J" & newrow).Value = change
+                If change <= 0 Then
+                    ws.Cells(newrow, 10).Interior.Color = vbRed
+                Else
+                    ws.Cells(newrow, 10).Interior.Color = vbGreen
+                End If
+            
+         'percent change
+            perchange = change / ws.Cells(changerow1, 3)
+            ws.Range("K" & newrow).Value = FormatPercent(perchange)
+            
+            changerow1 = changerow2 + 1
+            newrow = newrow + 1
+            volume = 0
+            change = 0
+        Else
+            volume = volume + ws.Cells(i, 7).Value
+        End If
+    Next i
+    
+'definitions
+    Dim inrow As Double
+    Dim derow As Double
+    Dim volrow As Double
+    Dim inval As Double
+    Dim deval As Double
+    Dim volval As Double
+    Dim newend As Double
+    newend = ws.Cells(Rows.Count, 9).End(xlUp).row
+    inrow = 0
+    derow = 0
+    volrow = 0
+    inval = ws.Cells(2, 11).Value
+    deval = ws.Cells(2, 11).Value
+    volval = ws.Cells(2, 12).Value
+    For i = 3 To newend
+    
+'finding row and value for greatest %
+        If inval < ws.Cells(i, 11).Value Then
+        inrow = ws.Cells(i, 11).row
+        inval = ws.Cells(i, 11).Value
+        End If
+        
+'finding row and value for lowest %
+        If deval > ws.Cells(i, 11).Value Then
+        derow = ws.Cells(i, 11).row
+        deval = ws.Cells(i, 11).Value
+        End If
+        
+'finding greatest volume
+        If volval < ws.Cells(i, 12).Value Then
+        volrow = ws.Cells(i, 11).row
+        volval = ws.Cells(i, 12).Value
+        End If
+    Next i
+    
+'Printing
+        ws.Range("O2") = ws.Cells(inrow, 9).Value
+        ws.Range("P2") = FormatPercent(ws.Cells(inrow, 11).Value)
+        
+        ws.Range("O3") = ws.Cells(derow, 9).Value
+        ws.Range("P3") = FormatPercent(ws.Cells(derow, 11).Value)
+        
+        ws.Range("O4") = ws.Cells(volrow, 9).Value
+        ws.Range("P4") = ws.Cells(volrow, 12).Value
+    Next ws
+End Sub
